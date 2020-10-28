@@ -37,7 +37,7 @@ if (
   } catch (e) {}
 }
 
-process.UNI_LIBRARIES = process.UNI_LIBRARIES || ['linewell-ui']
+process.UNI_LIBRARIES = ['linewell-ui']
 process.UNI_LIBRARIES.forEach(libraryName => {
   plugins.push([
     'import',
