@@ -19,7 +19,7 @@ export const bindUserPhone = (phone) => {
 /**
  * 小程序登录
  */
-export const miniLogin = ({authCode, encryptedData, ...otherParams) => {
+export const miniLogin = ({authCode, encryptedData, ...otherParams }) => {
 	
 	return appAjax.postJson({
 		service: "LOGIN",
