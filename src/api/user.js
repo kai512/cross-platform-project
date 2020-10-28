@@ -4,6 +4,35 @@ export const login = ({ userName, password }) => {
 }
 
 /**
+ * 绑定手机
+ */
+export const bindUserPhone = (phone) => {
+	
+	return appAjax.postJson({
+		service: "BIND_PHONE",
+		data: {
+			phone : phone
+		}
+	})
+}
+
+/**
+ * 小程序登录
+ */
+export const miniLogin = ({authCode, encryptedData, ...otherParams) => {
+	
+	return appAjax.postJson({
+		service: "LOGIN",
+		data: {
+			authCode: data.code,
+			encryptedData : res.encryptedData,
+			...otherParams
+		}
+	});
+}
+
+
+/**
  * 获取用户信息 
  */
 export const getUserInfo = () => {

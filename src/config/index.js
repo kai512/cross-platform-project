@@ -13,6 +13,10 @@ export default {
 	 *              用来在菜单中显示文字
 	 */
 	useI18n: false,
+	
+	// webview地址
+	H5_URL : '',
+	
 	/**
 	 * @description api请求基础路径
 	 */

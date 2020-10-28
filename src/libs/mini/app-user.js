@@ -1,6 +1,9 @@
-var appAjax = require('./app-ajax.js');
-var appSession = require("./app-session.js");
-var constants = require("../config/constants")
+import { bindUserPhone, miniLogin } from '@/api/user'
+import appSession from "@/libs/app-session"
+import config from "@/config"
+
+import * as lw from 'linewell-api'
+
 var app = getApp();
 
 var remote = {
@@ -11,15 +14,11 @@ var remote = {
 	 * @param {Object} _callback
 	 */
 	_bindUserPhone : function(phone, _callback) {
-		appAjax.postJson({
-			service: "BIND_PHONE",
-			data: {
-				phone : phone
-			},
-			success: function(ret) {
-				_callback && _callback(ret);
-			}
-		});
+		
+		bindUserPhone(phone).then((ret) => {
+			_callback && _callback(ret);
+			
+		})
 	}
 };
 
@@ -32,40 +31,34 @@ var privateMethods = {
 	_login: function(callback) {
 		
 		
-	    wx.showToast({
+	    lw.showToast({
 	     	title: "登录中",
 	      	icon: "loading",
 	      	mask: true
 	    });
 
-   		wx.login({
+   		lw.login({
    			success : function(data){
-   				
-   				wx.getUserInfo({
+				
+   				lw.getUserInfo({
 	        		success: function (res) {
 	        			
-	          			// 登录
-	          			appAjax.postJson({
-							service: "LOGIN",
-							data: {
-								authCode: data.code,
-		            			encryptedData : res.encryptedData,
-		            			iv:res.iv,
-		            			thirdLoginType :4
-							},
-							success: function(result) {
-			
-								// 缓存用户信息
-								appUser.saveLoginInfo(result || {});
-								
-					            // 回调
-					            callback && callback(result.dto || {});
-		          		
-							}
-						});
+	          			miniLogin({
+	          				authCode: data.code,
+	          				encryptedData : res.encryptedData,
+	          				iv:res.iv,
+	          				thirdLoginType :4
+	          			}).then((result) => {
+	          				
+	          				// 缓存用户信息
+	          				appUser.saveLoginInfo(result || {});
+	          				
+	          				// 回调
+	          				callback && callback(result.dto || {});
+	          			})
 		       		}, 
 		       		fail: function (e) {
-		          		wx.hideToast();
+		          		lw.hideToast();
 		        	}
 	     		});
    			}
@@ -86,11 +79,11 @@ var appUser = {
     	if (!appSession.loginCheck()) {
      		appUser.login(function (result) {
 	        	if (result && !result.phone) {
-	        		wx.navigateTo({
+	        		lw.navigateTo({
 	            		url: '../register/bind-phone?page=' + page
 	          		})
 	        	} else {
-		           	wx.navigateTo({
+		           	lw.navigateTo({
 		             	url: page
 		           	})
 	        	}
@@ -99,7 +92,7 @@ var appUser = {
 	        	callback && callback();
 	      	});
 	    } else {
-	      	wx.navigateTo({
+	      	lw.navigateTo({
 	        	url: page
 	      	})
 	    }
@@ -117,7 +110,7 @@ var appUser = {
       		appUser.login(function (result) {
 
 		        if (result && !result.phone) {
-		           	wx.navigateTo({
+		           	lw.navigateTo({
 		             	url: "../register/bind-phone?page=" + page
 		           	});
 		        } else {
@@ -140,7 +133,7 @@ var appUser = {
 		var that = this;
     
 	    // 查看是否授权
-	    wx.getSetting({
+	    lw.getSetting({
 	      	success: function (res) {
 	        	if (res.authSetting['scope.userInfo']) {
 	        		
@@ -150,7 +143,7 @@ var appUser = {
 		          	app.loginCallback = function() {
 		            	privateMethods._login(callback);
 		          	};
-		          	wx.navigateTo({
+		          	lw.navigateTo({
 			            url: '/pages/auth/authorized-login'
 			        });
 		        }
@@ -163,7 +156,7 @@ var appUser = {
 	 */
 	logOut : function(callback) {
 		var that = this;
-		wx.showModal({
+		lw.showModal({
 			title: '',
 			content: '确定要退出您的账号？',
 			success: function(res) {
@@ -178,20 +171,20 @@ var appUser = {
 	},
 
 	/**
-	 * 获取微信地址
+	 * 获取地址
 	 * @param {Object} callback 回调
 	 */
-	getWxAddress: function(self, callback) {
-		wx.getSetting({
+	getAddress: function(self, callback) {
+		lw.getSetting({
 			success(res) {
 				var status = res.authSetting['scope.address'];
 				if(status == undefined) {
-					wx.authorize({
+					lw.authorize({
 						scope: 'scope.address',
 						success() {
 
 							// 用户已经同意小程序使用地址功能，后续调用地址接口不会弹窗询问
-							wx.chooseAddress({
+							lw.chooseAddress({
 								success: function(result) {
 									callback && callback(result);
 								}
@@ -199,13 +192,13 @@ var appUser = {
 						},
 						fail() {
 							self.setData({
-								wxAddressShow: true
+								addressShow: true
 							});
 						}
 					});
 				} 
 				else if(status) { // 已获取权限
-					wx.chooseAddress({
+					lw.chooseAddress({
 						success: function(result) {
 							callback && callback(result);
 						}
@@ -216,15 +209,15 @@ var appUser = {
 	},
 	
 	/**
-	 * 微信登录
+	 * 登录
 	 * @param {Object} callback
 	 * @param {Object} failCallback
 	 */
-	wxLogin : function(callback, failCallback){
+	lwLogin : function(callback, failCallback){
 		
 		appUser.login(function(result){
 			if (result && !result.phone) {
-        		wx.navigateTo({
+        		lw.navigateTo({
             		url: '../register/bind-phone'
           		})
         		return;
@@ -253,7 +246,7 @@ var appUser = {
 
        	result.openId && (data.openId = result.openId);
 
-        wx.setStorageSync(constants.APP_USERINFO_SESSION, data);
+        lw.setStorageSync(config.APP_USERINFO_SESSION, data);
 	}
 };
 

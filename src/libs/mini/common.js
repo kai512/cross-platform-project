@@ -1,12 +1,10 @@
 /**
- * 所有页面公用脚本
- * @author 	cyixiang@linewell.com
- * @since	2018-06-27
+ * 页面跳转公用脚本
  */
-var utils = require("./utils.js");
-var appSession = require("./app-session.js");
-var constants = require("../config/constants.js");
-
+import utils from "@/libs/util"
+import appSession from "@/libs/app-session"
+import config from "@/config"
+import * as lw from 'linewell-api'
 module.exports = {
 	
 	/**
@@ -14,9 +12,9 @@ module.exports = {
 	 * @param {Object} urlStr
 	 */
 	getThirdUrl : function(urlStr){
-		var urlStr = utils.addUrlParam("T", "XMCITY", urlStr);
+		var urlStr = utils.addUrlParam("T", config.APP_ID, urlStr);
 		
-		return "/pages/common/web-view?url=" + encodeURIComponent(constants.H5_URL + "/mini-auth/mini-auth.html?mpt=" + encodeURIComponent(appSession.getToken()) + "&rUrl=" + encodeURIComponent(urlStr));
+		return "/pages/common/web-view?url=" + encodeURIComponent(config.H5_URL + "/mini-auth/mini-auth.html?mpt=" + encodeURIComponent(appSession.getToken()) + "&rUrl=" + encodeURIComponent(urlStr));
 		
 	},
 	
@@ -71,7 +69,7 @@ module.exports = {
 		var pageUrl;
 		
 		if(!url){
-			wx.showToast({
+			lw.showToast({
 			  title: 'URL为空',
 			  icon: 'none',
 			  duration: 2000
@@ -103,7 +101,7 @@ module.exports = {
 		}
 		
 		if(pageUrl){
-			wx.navigateTo({
+			lw.navigateTo({
 				url: pageUrl
 			})
 		}
