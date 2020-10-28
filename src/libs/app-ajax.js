@@ -51,11 +51,10 @@ var _postJson = function(params) {
 		service: '', // 服务的配置名称
 		data: {}, // 发送的data
 		params: {},
-		success: function(d) {}, // 成功后回调
-		error: null, // 失败后回调
 		autoShowWait: false, // 自动显示菊花
 		loadingText: '正在加载', // 加载的提示语
-		autoCloseWait: false, // 自动关闭菊花
+		type : 'POST',
+		showErrorMsg : true,
 		headers: {
 			'base-params': JSON.stringify(authClient),
 			'token': unescape(getToken() || '')
@@ -83,66 +82,67 @@ var _postJson = function(params) {
 			title : ajaxParams.loadingText
 		});
 		
-		// 交互方法
-		request({
-			url : ajaxParams.url,
-			header : ajaxParams.headers,
-			method : ajaxParams["type"] || 'POST',
-			data : ajaxParams.data,
-			success: function( res ) {
-				
-				if(!res || !res.data){
-					return;
-				}
-				
-				var data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
-				
-				if(data.status == 1){
+		return new Promise((resolve, reject) => {
+			
+			// 交互方法
+			request({
+				url : ajaxParams.url,
+				header : ajaxParams.headers,
+				method : ajaxParams["type"],
+				data : ajaxParams.data,
+				success: function( res ) {
 					
-					ajaxParams.success(data.content, data);
+					if(!res || !res.data){
+						return;
+					}
 					
-				}else{
-					var message = data.message ? data.message : "有点忙开个小差，稍后再试~";
+					var data = typeof res.data === 'string' ? JSON.parse(res.data) : res.data;
 					
-					if(ajaxParams.error){
-						ajaxParams.error(message, data);
+					if(data.status == 1){
+						
+						resolve(data.content, data);
+						
 					}else{
+						var message = data.message ? data.message : "有点忙开个小差，稍后再试~";
+						
+						if(ajaxParams.showErrorMsg) {
+							showToast({
+								title: message,
+								icon : "none",
+								duration: 3000,
+								position : "bottom"
+							});
+						}
+							
+						return reject(message, data)
+					}
+				},
+				fail(res) {
+					var message = res.data && (res.data.message ? res.data.message : "有点忙开个小差，稍后再试~");
+					
+					if(ajaxParams.showErrorMsg) {
 						showToast({
-							title: message,
+							title: message || "有点忙开个小差，稍后再试~",
 							icon : "none",
 							duration: 3000,
 							position : "bottom"
 						});
 					}
-				}
-			},
-			fail(res) {
-				var message = res.data && (res.data.message ? res.data.message : "有点忙开个小差，稍后再试~");
-				
-				// 有回调的话执行失败回调
-				if(ajaxParams.error){
-					ajaxParams.error(message, res);
-					return;
-				}
-				
-				showToast({
-					title: message || "有点忙开个小差，稍后再试~",
-					icon : "none",
-					duration: 3000,
-					position : "bottom"
-				});
-				
-			},
-			complete() {
-				
-				ajaxParams.complete && ajaxParams.complete();
-				
-				// 关闭loading
-				if(ajaxParams.autoShowWait) {
-					hideLoading();
-				}
-			},
+						
+					return reject(message, res)
+					
+				},
+				complete() {
+					
+					// 关闭loading
+					if(ajaxParams.autoShowWait) {
+						hideLoading();
+					}
+				},
+			})
+			
 		})
+		
 		
 	} catch(e) {
 		
@@ -157,7 +157,7 @@ var exportsMethods = {
 	 * @param {Object} params 配置定义的key
 	 */
 	postJson: function(params) {
-		_postJson(params)
+		return _postJson(params)
 	},
 
 	/**
