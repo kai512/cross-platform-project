@@ -460,8 +460,8 @@ export const getCstoonUA = (routeItem, vm) => {
 export const getAppInfo = () => {
 	
 	return {
-		areaCode : Cookies.get(AREA_CODE_KEY) || config.AREA_CODE || "",
-		appId : Cookies.get(APP_ID_KEY) || config.APP_ID || ""
+		areaCode : config.AREA_CODE || "",
+		appId : config.APP_ID || ""
 	}
 }
 

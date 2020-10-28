@@ -14,33 +14,25 @@ var privateMethods = {
 			service : this.options.serviceUrl,
 			data : this.options.sendData,
 			otherParams : this.options.otherParams,
-			type : this.options.type,
-			success : function(data){
+			type : this.options.type
+		}).then(() => {
+			if(!data || data.length < that.options.sendData.pageSize){
 				
-				if(!data || data.length < that.options.sendData.pageSize){
-					
-					that.options.sendData.type == "UP" ? that.isNoMore = true : that.isNoMore = false;
-					
-				}else{
-					that.isNoMore = false;
-				}
+				that.options.sendData.type == "UP" ? that.isNoMore = true : that.isNoMore = false;
 				
-				callback && callback(data);
-				
-				that.vm.setData({
-					pullMessage : that.isNoMore = true ? this.options.contentText.contentnomore : this.options.contentText.contentup
-				})
-				
-			},
-			error : function(message){
-				showToast({
-					title: message,
-					icon : "none",
-					duration: 3000,
-					position : "bottom"
-				});
-				failCallback && failCallback();
+			}else{
+				that.isNoMore = false;
 			}
+			
+			callback && callback(data);
+			
+			that.vm.setData({
+				pullMessage : that.isNoMore = true ? this.options.contentText.contentnomore : this.options.contentText.contentup
+			})
+			
+		}).catch(() => {
+			
+			failCallback && failCallback();
 		})
 	}
 };
