@@ -1,6 +1,6 @@
 /**
  * underscore扩展方法
- * @author	cyixiang@linewell.com
+ * @author	cyixiang
  * @since	2018-07-09
  */
 

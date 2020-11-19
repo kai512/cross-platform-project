@@ -1,6 +1,6 @@
 /**
  * md5加密
- * @author yshaobo@linewell.com
+ * @author yshaobo
  * @since 2015-6-16
  */
 /*

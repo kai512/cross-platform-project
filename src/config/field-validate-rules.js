@@ -1,6 +1,6 @@
 /**
  * 字段校验规则
- * @author	cyixiang@linewell.com
+ * @author	cyixiang
  * @since	2018-07-30
  */
 
