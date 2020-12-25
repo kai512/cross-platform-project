@@ -547,3 +547,28 @@ export const initNativeBack = () => {
 		cst.back();
 	}
 }
+
+/**
+ * 获取平台类型
+ */
+export const getPlatformType = () => {
+	
+	let platformType;
+	
+	// #ifdef H5
+	platformType = "H5";
+	// #endif
+	// #ifdef MP-WEIXIN
+	platformType = "MP-WEIXIN";
+	// #endif
+	
+	// #ifdef MP-ALIPAY
+	platformType = "MP-ALIPAY";
+	// #endif
+	
+	// #ifdef APP-PLUS
+	platformType = "MP-CSTOON";
+	// #endif
+	
+	return platformType;
+}

@@ -6,22 +6,18 @@
 import underscore from './underscore-extend'
 import config from '@/config'
 import { request, showLoading, hideLoading, showToast } from "linewell-api";
-import { getAppInfo, getToken } from "./util";
+import { getAppInfo, getToken, getPlatformType } from "./util";
+import appSession from '@/libs/app-session.js'
 
 /* 基础通信参数  */
 var _authClient = function() {
 	
 	let {areaCode, appId} = getAppInfo();
 	
-	// #ifdef H5
-	let deviceId = 'H5';
-	let os = "H5";
-	// #endif
-	
-	// #ifndef H5
-	let deviceId = 'miniprogram';
-	let os = "mini";
-	// #endif
+	let platformType = getPlatformType();
+
+	let deviceId = platformType;
+	let os = platformType;
 	
 	var auth = {
 		clientParams: {
@@ -30,9 +26,11 @@ var _authClient = function() {
 			deviceId: deviceId,
 			appVersion: ''
 		},
+		openId: appSession.getUserInfoByKey("openId") || '',
 		areaCode: areaCode,
 		appId: appId,
-		miniId: config.MINI_ID
+		miniId: config.MINI_ID,
+		loginTerminal : "1"
 	}
 
 	return auth
